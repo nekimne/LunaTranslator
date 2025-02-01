@@ -1,23 +1,5 @@
 ﻿#include "webview2_impl.hpp"
 
-struct CoAsyncTaskWaiter
-{
-    CEvent event;
-    CoAsyncTaskWaiter()
-    {
-        event.Create(nullptr, false, false, nullptr);
-    }
-    void Set()
-    {
-        SetEvent(event);
-    }
-    void Wait()
-    {
-        DWORD handleIndex = 0;
-        CoWaitForMultipleHandles(COWAIT_DISPATCH_WINDOW_MESSAGES | COWAIT_DISPATCH_CALLS | COWAIT_INPUTAVAILABLE, INFINITE, 1, &event.m_h, &handleIndex);
-    }
-};
-
 class JSEvalCallback : public ComImpl<ICoreWebView2ExecuteScriptCompletedHandler>
 {
 public:
@@ -314,6 +296,8 @@ std::optional<std::wstring> WebView2::UserDir()
 
 #ifndef WINXP
 #include <WebView2EnvironmentOptions.h>
+#else
+#include "WebView2EnvironmentOptionsFuckWRL.h"
 #endif
 HRESULT WebView2::init(bool loadextension)
 {
@@ -322,13 +306,16 @@ HRESULT WebView2::init(bool loadextension)
     auto dir = UserDir();
     ICoreWebView2EnvironmentOptions *optionptr = nullptr;
     auto ext = loadextension ? L"--embedded-browser-webview-enable-extension" : L"";
+    CComPtr<CoreWebView2EnvironmentOptions> options;
 #ifndef WINXP
-    auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
+    options.Attach(Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>().Detach());
+#else
+    options = new CoreWebView2EnvironmentOptions();
+#endif
     // 必须用这个才能进行add，否则只能list/remove/enable
     if (options && SUCCEEDED(options->put_AreBrowserExtensionsEnabled(loadextension)) && SUCCEEDED(options->put_AdditionalBrowserArguments(ext)))
-        optionptr = options.Get();
+        optionptr = options;
     else
-#endif
         SetEnvironmentVariableW(L"WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", ext);
     CHECK_FAILURE(CreateCoreWebView2EnvironmentWithOptions(nullptr, dir ? dir.value().c_str() : nullptr, optionptr, handler));
     WaitForLoad();

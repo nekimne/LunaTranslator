@@ -24,7 +24,6 @@ def fuckmove(src, tgt):
             shutil.copytree(src, tgt, dirs_exist_ok=True)
 
 
-
 mylinks = {
     "ocr_models": {
         "ja.zip": "https://github.com/test123456654321/RESOURCES/releases/download/ocr_models/ja.zip",
@@ -37,8 +36,6 @@ pluginDirs = ["DLL32", "DLL64"]
 
 vcltlFile = "https://github.com/Chuyu-Team/VC-LTL5/releases/download/v5.0.9/VC-LTL-5.0.9-Binary.7z"
 
-brotliFile32 = "https://github.com/google/brotli/releases/latest/download/brotli-x86-windows-dynamic.zip"
-brotliFile64 = "https://github.com/google/brotli/releases/latest/download/brotli-x64-windows-dynamic.zip"
 
 localeEmulatorFile = "https://github.com/xupefei/Locale-Emulator/releases/download/v2.5.0.1/Locale.Emulator.2.5.0.1.zip"
 LocaleRe = "https://github.com/InWILL/Locale_Remulator/releases/download/v1.5.3-beta.1/Locale_Remulator.1.5.3-beta.1.zip"
@@ -65,19 +62,6 @@ def installVCLTL():
     subprocess.run(f"7z x -y {vcltlFile.split('/')[-1]} -oVC-LTL5")
     os.chdir("VC-LTL5")
     subprocess.run("cmd /c Install.cmd")
-
-
-def downloadBrotli():
-    os.chdir(f"{rootDir}/scripts/temp")
-    subprocess.run(f"curl -C - -LO {brotliFile32}")
-    subprocess.run(f"curl -C - -LO {brotliFile64}")
-    subprocess.run(f"7z x -y {brotliFile32.split('/')[-1]} -obrotli32")
-    subprocess.run(f"7z x -y {brotliFile64.split('/')[-1]} -obrotli64")
-    os.chdir(rootDir)
-    fuckmove("scripts/temp/brotli32/brotlicommon.dll", "files/plugins/DLL32")
-    fuckmove("scripts/temp/brotli32/brotlidec.dll", "files/plugins/DLL32")
-    fuckmove("scripts/temp/brotli64/brotlicommon.dll", "files/plugins/DLL64")
-    fuckmove("scripts/temp/brotli64/brotlidec.dll", "files/plugins/DLL64")
 
 
 def move_directory_contents(source_dir, destination_dir):
@@ -178,7 +162,13 @@ def downloadNtlea():
     )
 
 
-def downloadCurl():
+def downloadCurl(arch):
+    if arch == "xp":
+        subprocess.run(
+            "curl -C - -LO https://github.com/test123456654321/RESOURCES/releases/download/dictionary/libcurl.dll"
+        )
+        shutil.copy("libcurl.dll", rootDir + "/files/plugins/DLL32")
+        return
     os.chdir(f"{rootDir}/scripts/temp")
     subprocess.run(f"curl -C - -LO {curlFile32}")
     subprocess.run(f"curl -C - -LO {curlFile64}")
@@ -273,12 +263,11 @@ def downloadalls(arch):
     createPluginDirs()
     downloadNtlea()
     downloadbass()
+    downloadCurl(arch)
     if arch == "xp":
         return
     downloadmapie()
     downloadLocaleEmulator()
-    downloadBrotli()
-    downloadCurl()
     downloadOCRModel()
     downloadlr()
 
@@ -354,6 +343,8 @@ if __name__ == "__main__":
         shutil.copy("cpp/builds/_x64/LunaOCR.dll", "files/plugins/DLL64")
 
         if sys.argv[2] == "x86":
+            os.remove("files/plugins/LunaHook/LunaHost64.dll")
             os.system(f"python {os.path.join(rootthisfiledir,'collectall.py')} 32")
         else:
+            os.remove("files/plugins/LunaHook/LunaHost32.dll")
             os.system(f"python {os.path.join(rootthisfiledir,'collectall.py')} 64")

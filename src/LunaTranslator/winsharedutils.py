@@ -16,7 +16,7 @@ from ctypes import (
     CFUNCTYPE,
     WinDLL,
 )
-from ctypes.wintypes import WORD, HWND, DWORD, RECT, HANDLE, UINT, BOOL, LONG
+from ctypes.wintypes import WORD, HWND, DWORD, RECT, HANDLE, UINT, BOOL, LONG, LPCWSTR
 import platform, windows, functools, os, threading
 
 isbit64 = platform.architecture()[0] == "64bit"
@@ -26,6 +26,9 @@ utilsdll = CDLL(
         "winsharedutils.dll",
     )
 )
+
+OpenFileEx = utilsdll.OpenFileEx
+OpenFileEx.argtypes = (LPCWSTR,)
 SetCurrProcessMute = utilsdll.SetCurrProcessMute
 SetCurrProcessMute.argtypes = (c_bool,)
 MonitorPidVolume = utilsdll.MonitorPidVolume
@@ -351,15 +354,19 @@ webview2_evaljs_CALLBACK = CFUNCTYPE(None, c_wchar_p)
 webview2_evaljs.argtypes = WebView2PTR, c_wchar_p, c_void_p
 webview2_set_observe_ptrs = utilsdll.webview2_set_observe_ptrs
 webview2_zoomchange_callback_t = CFUNCTYPE(None, c_double)
-webview2_navigating_callback_t = CFUNCTYPE(None, c_wchar_p)
+webview2_navigating_callback_t = CFUNCTYPE(None, c_wchar_p, c_bool)
 webview2_webmessage_callback_t = CFUNCTYPE(None, c_wchar_p)
 webview2_FilesDropped_callback_t = CFUNCTYPE(None, c_wchar_p)
+webview2_titlechange_callback_t = CFUNCTYPE(None, c_wchar_p)
+webview2_IconChanged_callback_t = CFUNCTYPE(None, c_void_p, c_size_t)
 webview2_set_observe_ptrs.argtypes = (
     WebView2PTR,
     webview2_zoomchange_callback_t,
     webview2_navigating_callback_t,
     webview2_webmessage_callback_t,
     webview2_FilesDropped_callback_t,
+    webview2_titlechange_callback_t,
+    webview2_IconChanged_callback_t,
 )
 webview2_bind = utilsdll.webview2_bind
 webview2_bind.argtypes = WebView2PTR, c_wchar_p
@@ -400,7 +407,11 @@ webview2_ext_enable.restype = LONG
 webview2_ext_rm = utilsdll.webview2_ext_rm
 webview2_ext_rm.argtypes = WebView2PTR, c_wchar_p
 webview2_ext_rm.restype = LONG
-
+webview2_get_userdir = utilsdll.webview2_get_userdir
+webview2_get_userdir_callback = CFUNCTYPE(None, c_wchar_p)
+webview2_get_userdir.argtypes = WebView2PTR, webview2_get_userdir_callback
+webview2_reload = utilsdll.webview2_reload
+webview2_reload.argtypes = (WebView2PTR,)
 # WebView2
 
 # LoopBack

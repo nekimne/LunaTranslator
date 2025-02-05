@@ -193,6 +193,7 @@ def setTab_proxy(self, l):
         )
     ]
     grids = [
+        grids1,
         [
             (
                 dict(
@@ -239,6 +240,4 @@ def setTab_proxy(self, l):
             )
         ],
     ]
-    if get_platform() != "xp":
-        grids.insert(0, grids1)
     makescrollgrid(grids, l)

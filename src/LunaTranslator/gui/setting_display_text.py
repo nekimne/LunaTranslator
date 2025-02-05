@@ -14,6 +14,7 @@ from gui.usefulwidget import (
     getboxlayout,
     D_getcolorbutton,
     getcolorbutton,
+    saveposwindow,
     getIconButton,
     getsimpleswitch,
     D_getsimpleswitch,
@@ -26,6 +27,7 @@ from gui.usefulwidget import (
     getsmalllabel,
     SplitLine,
     WebviewWidget,
+    ExtensionSetting,
 )
 from gui.dynalang import LPushButton, LFormLayout, LDialog, LStandardItemModel
 
@@ -215,18 +217,24 @@ class Exteditor(LDialog):
         self.resize(QSize(600, 400))
 
         model = LStandardItemModel()
-        model.setHorizontalHeaderLabels(["ID", "名称", "禁用", "移除"])
+        model.setHorizontalHeaderLabels(["移除", "", "名称", "禁用", "设置"])
 
         table = TableViewW()
 
         table.setModel(model)
         table.horizontalHeader().setSectionResizeMode(
-            2, QHeaderView.ResizeMode.ResizeToContents
+            0, QHeaderView.ResizeMode.ResizeToContents
+        )
+        table.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeMode.ResizeToContents
         )
         table.horizontalHeader().setSectionResizeMode(
             3, QHeaderView.ResizeMode.ResizeToContents
         )
-        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(
+            4, QHeaderView.ResizeMode.ResizeToContents
+        )
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         table.setSelectionMode((QAbstractItemView.SelectionMode.SingleSelection))
@@ -274,9 +282,12 @@ class Exteditor(LDialog):
     def listexts(self):
         self.model.removeRows(0, self.model.rowCount())
         for _i, (_id, name, able) in enumerate(WebviewWidget.Extensions_List()):
+
+            _i = self.model.rowCount()
             self.model.appendRow(
                 [
-                    QStandardItem(_id),
+                    QStandardItem(""),
+                    QStandardItem(""),
                     QStandardItem(name),
                     QStandardItem(""),
                     QStandardItem(""),
@@ -284,7 +295,7 @@ class Exteditor(LDialog):
             )
             d = {"1": able}
             self.table.setIndexWidget(
-                self.model.index(_i, 2),
+                self.model.index(_i, 3),
                 getsimpleswitch(
                     d,
                     "1",
@@ -294,12 +305,57 @@ class Exteditor(LDialog):
                 ),
             )
             self.table.setIndexWidget(
-                self.model.index(_i, 3),
+                self.model.index(_i, 0),
                 getIconButton(
                     callback=functools.partial(self.tryMessage, self.removex, _id),
                     icon="fa.times",
                 ),
             )
+            t = QTimer(self)
+            t.setInterval(1000)
+            t.timeout.connect(
+                functools.partial(
+                    self.checkinfo,
+                    _id,
+                    self.model.index(_i, 1),
+                    self.model.index(_i, 3),
+                    self.model.index(_i, 4),
+                    name,
+                    t,
+                )
+            )
+            t.start(0)
+
+    def checkinfo(
+        self, _id, i1: QModelIndex, i3: QModelIndex, i4: QModelIndex, name, t: QTimer
+    ):
+        if not (i1.isValid() and i4.isValid()):
+            return t.stop()
+        info = WebviewWidget.Extensions_Manifest_Info(_id)
+        if info is None:
+            return
+        setting = info.get("url")
+        if setting:
+            self.table.setIndexWidget(
+                i4,
+                getIconButton(
+                    callback=functools.partial(
+                        ExtensionSetting, name, setting, info.get("icon")
+                    ),
+                    enable=self.table.indexWidgetX(i3).isChecked(),
+                ),
+            )
+        icon = info.get("icon")
+        if icon:
+            self.table.setIndexWidget(
+                i1,
+                getIconButton(
+                    qicon=QIcon(icon),
+                    callback=functools.partial(os.startfile, info["path"]),
+                    enable=self.table.indexWidgetX(i3).isChecked(),
+                ),
+            )
+        t.stop()
 
     def enablex(self, _id, able, _):
         WebviewWidget.Extensions_Enable(_id, able)

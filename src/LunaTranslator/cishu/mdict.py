@@ -613,6 +613,8 @@ if (content.style.display === 'block') {
 } else {
     content.style.display = 'block';
 }
+if(window.LUNAJSObject)
+        LUNAJSObject.mdict_fold_callback(_id,content.style.display)
 }</script>"""
         lis = []
 

@@ -37,6 +37,20 @@ typedef struct HSTRING__
 // Declare the HSTRING handle for C/C++
 typedef __RPC_unique_pointer HSTRING__ *HSTRING;
 
+// Declare the HSTRING_HEADER
+typedef struct HSTRING_HEADER
+{
+    union
+    {
+        PVOID Reserved1;
+#if defined(_WIN64)
+        char Reserved2[24];
+#else
+        char Reserved2[20];
+#endif
+    } Reserved;
+} HSTRING_HEADER;
+
 typedef /* [v1_enum] */
     enum TrustLevel
 {
@@ -104,21 +118,13 @@ extern const __declspec(selectany) _Null_terminated_ WCHAR RuntimeClass_Windows_
 MIDL_INTERFACE("689e0708-7eef-483f-963f-da938818e073")
 ISoftwareBitmap : public IInspectable{};
 
-void *loadproc(LPCWSTR lib, LPCSTR func);
-inline _Check_return_
+extern "C" _Check_return_
     HRESULT
         WINAPI
         RoGetActivationFactory(
             _In_ HSTRING activatableClassId,
             _In_ REFIID iid,
-            _COM_Outptr_ void **factory)
-
-{
-    auto func = loadproc(L"Combase.dll", "RoGetActivationFactory");
-    if (!func)
-        return E_NOTIMPL;
-    return ((decltype(&RoGetActivationFactory))(func))(activatableClassId, iid, factory);
-}
+            _COM_Outptr_ void **factory);
 template <class T>
 _Check_return_ __inline HRESULT GetActivationFactory(
     _In_ HSTRING activatableClassId,
@@ -182,7 +188,12 @@ WindowsCreateString(
     _In_reads_opt_(length) PCNZWCH sourceString,
     UINT32 length,
     _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING *string);
-
+STDAPI
+WindowsCreateStringReference(
+    _In_reads_opt_(length + 1) PCWSTR sourceString,
+    UINT32 length,
+    _Out_ HSTRING_HEADER *hstringHeader,
+    _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING *string);
 STDAPI
 WindowsDeleteString(
     _In_opt_ HSTRING string);

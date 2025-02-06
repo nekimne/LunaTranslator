@@ -241,7 +241,8 @@ HRESULT STDMETHODCALLTYPE WebView2ComHandler::Invoke(ICoreWebView2 *sender, ICor
     CHECK_FAILURE(args->put_Handled(TRUE));
     if (StartsWith(uri, L"chrome-extension://"))
     {
-        ref->navigating_callback(uri, true);
+        if (ref->navigating_callback)
+            ref->navigating_callback(uri, true);
     }
     else if (StartsWith(uri, L"chrome://"))
     {
@@ -539,3 +540,4 @@ void WebView2::Reload()
 {
     m_webView->Reload();
 }
+std::set<WebView2 *> WebView2::save_ptrs;

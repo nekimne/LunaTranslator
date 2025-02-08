@@ -1,83 +1,48 @@
-# LunaTranslator
+LunaTranslator
+简体中文 | English | Other Language
+User Manual | Software Download |
 
-### 简体中文  | [English](README_en.md) | [Other Language](otherlang.md)
+    A galgame translation tool
 
-### [使用说明](https://docs.lunatranslator.org/) | [视频教程](https://space.bilibili.com/592120404/video) | [软件下载](https://docs.lunatranslator.org/README.html) | [![](https://img.shields.io/badge/QQ群-963119821-FF007C?style=for-the-badge)](https://qm.qq.com/q/I5rr3uEpi2) [![](https://img.shields.io/discord/1262692128031772733?label=Discord&logo=discord&color=FF007C&style=for-the-badge)](https://discord.com/invite/ErtDwVeAbB)
+Feature Support
+Text Input
 
+    HOOK Supports obtaining text using HOOK methods, supports the use of special codes, supports automatic saving of games and HOOKs, automatic loading of HOOKs, etc. For some engines, it also supports embedded translation. For games that are not supported or not well supported, please submit feedback
 
-> **一款galgame翻译器**
+    OCR supports offline OCR (in addition to the built-in OCR engine, it also supports WindowsOCR, Tesseract5, manga-ocr, WeChat/QQ OCR) and online OCR (Baidu, Youdao, iFlytek, Google Lens, Google Cloud Vision, docsumo, ocrspace, Gemini, ChatGPT-compatible interfaces).
 
-## 功能支持
+    Clipboard Supports obtaining text from the clipboard for translation
 
-#### 文本输入
+    Text Output Extracted text can be output to the clipboard, Websocket, for use by other programs.
 
-- **HOOK** 支持使用HOOK方式获取文本，支持使用特殊码，支持自动保存游戏及HOOK、自动加载HOOK等。对于部分引擎，还支持内嵌翻译。对于不支持或支持不好的游戏，请[提交反馈](https://github.com/HIllya51/LunaTranslator/issues/new?assignees=&labels=enhancement&projects=&template=01_game_request.yaml)
+Translator
 
+Supports almost all conceivable translation engines, including:
 
-- **OCR** 支持 **离线OCR** ( 除内置OCR引擎外，还支持WindowsOCR、Tessearact5、manga-ocr、WeChat/QQ OCR ) 和 **在线OCR** ( 百度、有道、讯飞、Google Lens、Google Cloud Vision、docsumo、ocrspace、Gemini、ChatGPT兼容接口 )
+    Free Online Translation Supports Baidu, Bing, Google, Alibaba, Youdao, Caiyun, Tencent, Volcano, DeepL/DeepLX, papago, yandex, lingva, reverso, TranslateCom, ModernMT
 
-- **剪贴板** 支持从剪贴板中获取文本进行翻译
+    Registered Online Translation Supports user-registered traditional translation (Baidu, Tencent, Youdao, Xiaoniu, Caiyun, Volcano, DeepL, yandex, google, ibm, Azure) and large model translation (ChatGPT compatible interface, claude, cohere, gemini, Baidu Qianfan, Tencent Hunyuan)
 
-- **文本输出** 提取的文本可以输出到剪贴板、Websocket，以供其他程序使用。
+    Offline Translation Supports traditional translation (J Beijing 7, Kingsoft, Yidiantong, ezTrans, Sugoi, Atlas, LEC) and offline deployed large model translation (ChatGPT compatible interface, Sakura large model)
 
-#### 翻译器
+    Pre-translation Supports reading pre-translated files, supports translation caching
 
-支持几乎所有能想得到的翻译引擎，包括： 
+    Support for Custom Translation Extensions Supports extending other translation interfaces using the Python language
 
-- **免费在线翻译** 支持使用百度、必应、谷歌、阿里、有道、彩云、腾讯、火山、DeepL/DeepLX、papago、yandex、lingva、reverso、TranslateCom、ModernMT
+Text-to-Speech
 
-- **注册在线翻译** 支持使用用户注册的 **传统翻译** ( 百度、腾讯、有道、小牛、彩云、火山、DeepL、yandex、google、ibm、Azure ) 和 **大模型翻译** ( ChatGPT兼容接口、claude、cohere、gemini、百度千帆、腾讯混元 ) 
+    Offline TTS Supports WindowsTTS, VoiceRoid2/VoiceRoid+, NeoSpeech, VOICEVOX, VITS
 
-- **离线翻译** 支持 **传统翻译** ( J北京7、金山快译、译典通、ezTrans、Sugoi、Atlas、LEC ) 和离线部署的 **大模型翻译** ( ChatGPT兼容接口、Sakura大模型 ) 
+    Online TTS Supports Volcano TTS, Youdao TTS, Edge TTS, Google TTS, OpenAI
 
-- **预翻译** 支持读取预翻译文件，支持翻译缓存
+Japanese Learning
 
-- **支持自定义翻译扩展** 支持使用python语言扩展其他翻译接口
- 
+    Japanese Word Segmentation and Kana Display Supports word segmentation and kana display using Mecab, etc.
 
-#### 语音合成
+    Vocabulary Lookup Supports offline dictionaries (MDICT) and online dictionaries (Youdao, weblio, Goo, Moji, jisho, JapanDict, ChatGPT) for word lookup
 
-- **离线TTS** 支持WindowsTTS、VoiceRoid2/VoiceRoid+、NeoSpeech、VOICEVOX、VITS
+    Anki Supports one-click addition of words to Anki
 
-- **在线TTS** 支持火山TTS、有道TTS、EdgeTTS、谷歌TTS、OpenAI
+Sponsorship
 
-
-#### 日语学习
-
-- **日语分词及假名显示** 支持使用 Mecab 等分词和显示假名
-
-- **查词** 支持使用 **离线辞书** ( MDICT ) 和 **在线辞书** ( 有道、weblio、Goo、Moji、jisho、JapanDict、ChatGPT) 进行单词查询
-
-- **Anki** 支持使用一键添加单词到anki中
-
- 
-## 支持作者
-
-如果你感觉该软件对你有帮助，欢迎微信扫码赞助，谢谢，么么哒~
-
-<img src='../src/files/zan.jpg' style="height: 400px !important;">
-
-## 开源许可
-
-LunaTranslator使用 [GPLv3](../LICENSE) 许可证。
-
-<details>
-<summary>引用的项目</summary>
-
-* ![img](https://img.shields.io/github/license/RapidAI/RapidOcrOnnx) [RapidAI/RapidOcrOnnx](https://github.com/RapidAI/RapidOcrOnnx)
-* ![img](https://img.shields.io/github/license/PaddlePaddle/PaddleOCR) [PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)
-* ![img](https://img.shields.io/github/license/Blinue/Magpie) [Blinue/Magpie](https://github.com/Blinue/Magpie)
-* ![img](https://img.shields.io/github/license/nanokina/ebyroid) [nanokina/ebyroid](https://github.com/nanokina/ebyroid)
-* ![img](https://img.shields.io/github/license/xupefei/Locale-Emulator) [xupefei/Locale-Emulator](https://github.com/xupefei/Locale-Emulator)
-* ![img](https://img.shields.io/github/license/InWILL/Locale_Remulator) [InWILL/Locale_Remulator](https://github.com/InWILL/Locale_Remulator)
-* ![img](https://img.shields.io/github/license/zxyacb/ntlea) [zxyacb/ntlea](https://github.com/zxyacb/ntlea)
-* ![img](https://img.shields.io/github/license/Chuyu-Team/YY-Thunks) [Chuyu-Team/YY-Thunks](https://github.com/Chuyu-Team/YY-Thunks)
-* ![img](https://img.shields.io/github/license/Chuyu-Team/VC-LTL5) [Chuyu-Team/VC-LTL5](https://github.com/Chuyu-Team/VC-LTL5)
-* ![img](https://img.shields.io/github/license/uyjulian/AtlasTranslate) [uyjulian/AtlasTranslate](https://github.com/uyjulian/AtlasTranslate)
-* ![img](https://img.shields.io/github/license/ilius/pyglossary) [ilius/pyglossary](https://github.com/ilius/pyglossary)
-* ![img](https://img.shields.io/github/license/ikegami-yukino/mecab) [ikegami-yukino/mecab](https://github.com/ikegami-yukino/mecab)
-* ![img](https://img.shields.io/github/license/AngusJohnson/Clipper2) [AngusJohnson/Clipper2](https://github.com/AngusJohnson/Clipper2)
-* ![img](https://img.shields.io/github/license/rapidfuzz/rapidfuzz-cpp) [rapidfuzz/rapidfuzz-cpp](https://github.com/rapidfuzz/rapidfuzz-cpp)
-* ![img](https://img.shields.io/github/license/TsudaKageyu/minhook) [TsudaKageyu/minhook](https://github.com/TsudaKageyu/minhook)
-* ![img](https://img.shields.io/github/license/lobehub/lobe-icons) [lobehub/lobe-icons](https://github.com/lobehub/lobe-icons)
-</details>
+If you feel that the software is helpful to you, welcome to become my sponsor. Thank you ~

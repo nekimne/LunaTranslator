@@ -191,7 +191,7 @@ bool InsertShinaHook(int ver)
             hp.codepage = 932;
             hp.filter_fun = [](TextBuffer *buffer, HookParam *)
             {
-              StringFilter(buffer, "_r", 2);
+              StringFilter(buffer, TEXTANDLEN("_r"));
               buffer->from(std::regex_replace(buffer->strA(), std::regex("_t!.*?[/>]"), ""));
             };
             ConsoleOutput("triggered: adding dynamic reader");
@@ -991,6 +991,12 @@ namespace
 bool ShinaRio::attach_function()
 {
   int ver = GetShinaRioVersion();
+  if (ver <= 20)
+  {
+    // https://vndb.org/v3419
+    PcHooks::hookGDIFunctions(GetTextExtentPoint32A);
+    return true;
+  }
   auto _h = InsertShinaHook(ver);
   auto e = ScenarioHook::attach(ver + 200);
   return _h || e;

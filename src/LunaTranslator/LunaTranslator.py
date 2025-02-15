@@ -44,6 +44,7 @@ from gui.setting import Setting
 from gui.attachprocessdialog import AttachProcessDialog
 import windows
 import winsharedutils
+from gui.dialog_savedgame_common import startgame
 from winsharedutils import collect_running_pids
 from myutils.post import POSTSOLVE
 from myutils.utils import nowisdark, dynamicapiname
@@ -1164,7 +1165,7 @@ class MAINUI:
                 #     QFontDatabase.SystemFont.GeneralFont
                 # ).family()
 
-    def loadui(self):
+    def loadui(self, startwithgameuid):
         self.installeventfillter()
         self.parsedefaultfont()
         self.loadmetadatas()
@@ -1176,6 +1177,8 @@ class MAINUI:
         self.translation_ui.show()
         self.translation_ui.aftershowdosomething()
         self.mainuiloadafter()
+        if startwithgameuid:
+            startgame(startwithgameuid)
 
     def mainuiloadafter(self):
         version = str(winsharedutils.queryversion(getcurrexe()))
@@ -1218,7 +1221,7 @@ class MAINUI:
         self.starttextsource()
         self.inittray()
         self.playtimemanager = playtimemanager()
-        self.__count = 0
+        self.urlprotocol()
 
     def WinEventHookCALLBACK(self, event, hwnd, idObject):
         try:
@@ -1277,9 +1280,7 @@ class MAINUI:
     def WindowMessageCallback(self, msg: int, boolvalue: bool, strvalue: str):
         if msg == 0:
             if globalconfig["darklight2"] == 0:
-                if self.__count % 2:
-                    self.commonstylebase.setstylesheetsignal.emit()
-                self.__count += 1
+                self.commonstylebase.setstylesheetsignal.emit()
         elif msg == 1:
             if boolvalue:
                 self.translation_ui.settop()

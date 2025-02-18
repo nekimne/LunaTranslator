@@ -3,7 +3,7 @@ import functools, threading
 from myutils.wrapper import threader
 from traceback import print_exc
 from myutils.proxy import getproxy
-from myutils.utils import LRUCache
+from myutils.utils import LRUCache, stringfyerror
 from myutils.commonbase import commonbase
 
 
@@ -94,10 +94,11 @@ class TTSbase(commonbase):
             data = self.LRUCache.get(key)
             if data:
                 return callback(data)
-            data = self.speak(content, self.voice, self.param)
+            data = self.multiapikeywrapper(self.speak)(content, self.voice, self.param)
             if data:
                 callback(data)
                 self.LRUCache.put(key, data)
-        except:
+        except Exception as e:
             print_exc()
+            print(stringfyerror(e))
             return

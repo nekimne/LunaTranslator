@@ -20,7 +20,7 @@ class TTS(TTSbase):
 
     def createheaders(self):
         _ = {}
-        curkey = self.config["SECRET_KEY"]
+        curkey = self.multiapikeycurrent["SECRET_KEY"]
         if curkey:
             # 部分白嫖接口可以不填，填了反而报错
             _.update({"Authorization": "Bearer " + curkey})
@@ -52,5 +52,10 @@ class TTS(TTSbase):
             "speed": speed,  # 0.25 to 4.0. 1.0 is the default.
         }
 
-        response = requests.post(self.createurl(), headers=headers, json=json_data)
+        response = self.proxysession.post(
+            self.createurl(), headers=headers, json=json_data
+        )
+        if 400 <= response.status_code < 600:
+            raise Exception(response)
+
         return response.content

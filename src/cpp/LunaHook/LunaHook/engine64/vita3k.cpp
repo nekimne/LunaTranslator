@@ -559,11 +559,34 @@ namespace
         s = std::regex_replace(s, std::regex(R"(#\w+(\[.+?\])?)"), "");
         buffer->from(s);
     }
+    void PCSG01250_T(TextBuffer *buffer, HookParam *hp)
+    {
+        auto s = buffer->strA();
+        if (!startWith(s, "<text"))
+            return buffer->clear();
+        s = s.substr(6, s.size() - 6 - 1);
+        s = std::regex_replace(s, std::regex(R"(/ruby:(.*?)&(.*?)/)"), "$1");
+        buffer->from(s);
+    }
+    void PCSG01250_N(TextBuffer *buffer, HookParam *hp)
+    {
+        auto s = buffer->strA();
+        if (!startWith(s, "<name"))
+            return buffer->clear();
+        s = s.substr(6 + 1, s.size() - 6 - 1 - 2);
+        buffer->from(s);
+    }
+    void PCSG01325(TextBuffer *buffer, HookParam *hp)
+    {
+        auto s = buffer->strA();
+        s = std::regex_replace(s, std::regex(u8R"(@[_\*\d\w]*)"), "");
+        buffer->from(s);
+    }
     void FPCSG00855(TextBuffer *buffer, HookParam *hp)
     {
         auto s = buffer->strA();
         s = std::regex_replace(s, std::regex(u8R"(#n(　)*)"), "");
-        s = std::regex_replace(s, std::regex(R"(#\w.+?])"), "");
+        s = std::regex_replace(s, std::regex(R"(#\w.+?\])"), "");
         buffer->from(s);
     }
     void FPCSG00855_2_1(TextBuffer *buffer, HookParam *hp)
@@ -597,7 +620,7 @@ namespace
     {
         auto ws = StringToWideString(buffer->viewA(), 932).value();
         ws = std::regex_replace(ws, std::wregex(LR"(#n\u3000*)"), L"");
-        ws = std::regex_replace(ws, std::wregex(LR"(#\w.+?])"), L"");
+        ws = std::regex_replace(ws, std::wregex(LR"(#\w.+?\])"), L"");
         buffer->from(WideStringToString(ws, 932));
     }
     void FPCSG00852(TextBuffer *buffer, HookParam *hp)
@@ -643,6 +666,11 @@ namespace
         if (buffer->viewA() == PCSG00535)
             buffer->clear();
     }
+    void PCSG01114(TextBuffer *buffer, HookParam *hp)
+    {
+        CharFilter(buffer, '@');
+        StringFilterBetween(buffer, TEXTANDLEN("{"), TEXTANDLEN("}"));
+    }
     void PCSG00482(TextBuffer *buffer, HookParam *hp)
     {
         StringFilter(buffer, TEXTANDLEN(u8"▼"));
@@ -659,21 +687,13 @@ namespace
     {
         auto ws = StringToWideString(buffer->viewA(), 932).value();
 
-        static auto katakanaMapExtra = std::map<wchar_t, wchar_t>{
-            {L'ﾟ', L'？'}, {L'ﾞ', L'！'}, {L'･', L'…'}};
         auto remap = [](std::wstring &ws)
         {
             std::wstring result;
             for (auto c : ws)
             {
-                if (katakanaMapExtra.find(c) != katakanaMapExtra.end())
-                {
-                    result += katakanaMapExtra[c];
-                }
                 if (katakanaMap.find(c) != katakanaMap.end())
-                {
                     result += katakanaMap[c];
-                }
                 else
                     result += c;
             }
@@ -683,6 +703,26 @@ namespace
         ws = std::regex_replace(ws, std::wregex(LR"(\$\[(.*?)\$/(.*?)\$\])"), L"$1");
         ws = std::regex_replace(ws, std::wregex(LR"(\$C\[ffffff\](.*?)@\$C\[\])"), L"$1");
         strReplace(ws, L"\n", L"");
+        buffer->from(WideStringToString(ws, 932));
+    }
+    void PCSG01254(TextBuffer *buffer, HookParam *hp)
+    {
+        auto ws = StringToWideString(buffer->viewA(), 932).value();
+
+        auto remap = [](std::wstring &ws)
+        {
+            std::wstring result;
+            for (auto c : ws)
+            {
+                if (katakanaMap.find(c) != katakanaMap.end())
+                    result += katakanaMap[c];
+                else
+                    result += c;
+            }
+            return result;
+        };
+        ws = remap(ws);
+        strReplace(ws, L"@r", L"");
         buffer->from(WideStringToString(ws, 932));
     }
     void PCSG01196(TextBuffer *buffer, HookParam *hp)
@@ -747,8 +787,9 @@ namespace
             {0x800581a2, {CODEC_UTF8, 0, 0, 0, FPCSG01008, "PCSG00935"}}, // text
             // New Game! The Challenge Stage!
             {0x8012674c, {CODEC_UTF8, 0, 0, TPCSG00903, FPCSG00903, "PCSG00903"}},
-            // 喧嘩番長乙女
-            {0x80009722, {CODEC_UTF16, 0, 0, 0, FPCSG00839, "PCSG00839"}},
+            // 喧嘩番長 乙女
+            {0x80009722, {CODEC_UTF16, 0, 0, 0, FPCSG00839, "PCSG00829"}},
+            {0x800086C0, {CODEC_UTF16, 0, 0, 0, PCSG00829, "PCSG00829"}}, // 缺少部分
             // アルカナ・ファミリア -La storia della Arcana Famiglia- Ancora
             {0x80070e30, {0, 2, 0, 0, FPCSG00751, "PCSG00751"}}, // all,sjis
             {0x80070cdc, {0, 1, 0, 0, FPCSG00751, "PCSG00751"}}, // text
@@ -940,8 +981,6 @@ namespace
             // ハナヤマタ　よさこいLIVE！
             {0x810789EE, {CODEC_UTF16, 3, 0, 0, PCSG00451<1>, "PCSG00451"}},
             {0x81078B22, {CODEC_UTF16, 1, 0, 0, PCSG00451<0>, "PCSG00451"}},
-            // 喧嘩番長 乙女
-            {0x800086C0, {CODEC_UTF16, 0, 0, 0, PCSG00829, "PCSG00829"}}, // 缺少部分
             // sweet pool
             {0x8003D5B6, {0, 0, 0, 0, PCSG01196, "PCSG01196"}},
             // 学園ヘヴン BOY'S LOVE SCRAMBLE!
@@ -960,6 +999,22 @@ namespace
             {0x8004D078, {CODEC_UTF8, 0, 0, 0, PCSG00787, "PCSG01025"}},
             // アイドリッシュセブン　Twelve Fantasia!
             {0x8011E570, {CODEC_UTF8, 4, 0, 0, 0, "PCSG01094"}}, // 或0x8011e580。映射地址会发生切换，导致用特殊码搜索搜不到，且有好几个杂乱线程，但我也不想改框架了，很烦
+            // VARIABLE BARRICADE
+            {0x80031CDE, {CODEC_UTF8, 6, 0, 0, FPCSG00855, "PCSG01159"}},
+            {0x80038874, {CODEC_UTF8, 6, 0, 0, FPCSG00855, "PCSG01159"}},
+            // ワールドエンド・シンドローム
+            {0x80029E5C, {CODEC_UTF8, 4, 0, 0, PCSG01114, "PCSG01114"}},
+            // 添いカノ ～ぎゅっと抱きしめて～
+            {0x8007D250, {0, 0, 0, 0, PCSG01254, "PCSG01254"}},
+            // アイキス
+            {0x80322DDA, {CODEC_UTF8, 5, 0, 0, PCSG01325, "PCSG01325"}},
+            {0x801B8F9A, {CODEC_UTF8, 5, 0, 0, PCSG01325, "PCSG01325"}},
+            // スキとスキとでサンカク恋愛
+            {0x80013ED6, {0, 4, 0, 0, PCSG01250_T, "PCSG01250"}},
+            {0x80013EE6, {0, 4, 0, 0, PCSG01250_N, "PCSG01250"}},
+            // 戦場の円舞曲
+            {0x8006C08C, {0, 5, 0, 0, FPCSG00448, "PCSG00428"}},
+            {0x8002B1DE, {0, 7, 0, 0, FPCSG00448, "PCSG00428"}},
         };
         return 1;
     }();

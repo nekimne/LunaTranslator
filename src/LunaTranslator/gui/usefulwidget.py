@@ -467,15 +467,11 @@ def disablecolor(__: QColor):
     return __
 
 
-class MySwitch(QWidget):
-    clicked = pyqtSignal(bool)
+class MySwitch(QAbstractButton):
     clicksignal = pyqtSignal()
 
     def event(self, a0: QEvent) -> bool:
         if a0.type() == QEvent.Type.MouseButtonDblClick:
-            return True
-        elif a0.type() == QEvent.Type.EnabledChange:
-            self.setEnabled(not self.isEnabled())
             return True
         elif a0.type() == QEvent.Type.FontChange:
             self.__loadsize()
@@ -486,13 +482,11 @@ class MySwitch(QWidget):
         sz = QSizeF(1.62 * h * gobject.Consts.btnscale, h * gobject.Consts.btnscale)
         self.setFixedSize(sz.toSize())
 
-    def click(self):
-        self.setChecked(not self.checked)
-        self.clicked.emit(self.checked)
-
     def __init__(self, parent=None, sign=True, enable=True):
         super().__init__(parent)
-        self.checked = sign
+        self.setCheckable(True)
+        super().setChecked(sign)
+        super().setEnabled(enable)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.clicksignal.connect(self.click)
         self.__currv = 0
@@ -505,23 +499,16 @@ class MySwitch(QWidget):
         self.animation.setEndValue(20)
         self.animation.valueChanged.connect(self.update11)
         self.animation.finished.connect(self.onAnimationFinished)
-        self.enable = enable
         self.__loadsize()
 
-    def setEnabled(self, enable):
-        self.enable = enable
-        self.update()
-
-    def isEnabled(self):
-        return self.enable
-
-    def isChecked(self):
-        return self.checked
+    def click(self):
+        super().click()
+        self.runanime()
 
     def setChecked(self, check):
-        if check == self.checked:
+        if check == self.isChecked():
             return
-        self.checked = check
+        super().setChecked(check)
         self.runanime()
 
     def update11(self):
@@ -531,7 +518,7 @@ class MySwitch(QWidget):
     def runanime(self):
         self.animation.setDirection(
             QVariantAnimation.Direction.Forward
-            if self.checked
+            if self.isChecked()
             else QVariantAnimation.Direction.Backward
         )
         self.animation.start()
@@ -540,10 +527,10 @@ class MySwitch(QWidget):
 
         __ = QColor(
             [gobject.Consts.buttoncolor_disable, gobject.Consts.buttoncolor][
-                self.checked
+                self.isChecked()
             ]
         )
-        if not self.enable:
+        if not self.isEnabled():
             __ = disablecolor(__)
         return __
 
@@ -581,14 +568,14 @@ class MySwitch(QWidget):
         painter.setPen(Qt.PenStyle.NoPen)
         self.paintanime(painter)
 
-    def mouseReleaseEvent(self, event) -> None:
-        if not self.enable:
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        if not self.isEnabled():
             return
         if event.button() != Qt.MouseButton.LeftButton:
             return
         try:
-            self.checked = not self.checked
-            self.clicked.emit(self.checked)
+            self.setChecked(not self.isChecked())
+            self.clicked.emit(self.isChecked())
             self.runanime()
             # 父窗口deletelater
         except:
@@ -2847,7 +2834,7 @@ class IconButton(QPushButton):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setStyleSheet("border:transparent;padding: 0px;")
         self.setCheckable(checkable)
-        self.setEnabled(enable)
+        self.setEnabled(enable and (bool(icon) or bool(qicon)))
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.resizedirect()
 
